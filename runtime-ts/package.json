@@ -1,0 +1,13 @@
+{
+  "name": "@synapse-rpc/runtime",
+  "version": "0.2.0",
+  "description": "Reactive Type-Safe Binary RPC Wire Runtime for Synapse RPC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "node tests/test_runtime.mjs"
+  },
+  "keywords": ["synapse", "rpc", "binary", "streaming", "reactive"],
+  "author": "koushik4475 <koushik4475@gmail.com>",
+  "license": "MIT"
+}

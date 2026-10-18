@@ -1,0 +1,42 @@
+[package]
+name = "synapse-rpc-compiler"
+version = "0.2.0"
+authors = ["koushik4475 <koushik4475@gmail.com>"]
+edition = "2021"
+description = "Full-Stack Reactive Schema & Type-Safe RPC Compiler in Rust and TypeScript"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ER-brocode/synapse-rpc-compiler"
+keywords = ["rpc", "compiler", "reactive", "streaming", "codegen"]
+categories = ["network-programming", "development-tools::build-utils"]
+readme = "README.md"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive", "cargo"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+byteorder = "1.5"
+bytes = "1.5"
+crc32fast = "1.4"
+tokio = { version = "1.36", features = ["full", "sync", "rt-multi-thread"], optional = true }
+futures = { version = "0.3", optional = true }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+colored = "2.1"
+regex = "1.10"
+
+[features]
+default = ["runtime-tokio"]
+runtime-tokio = ["dep:tokio", "dep:futures"]
+
+[dev-dependencies]
+tempfile = "3.10"
+tokio-test = "0.4"
+
+[[bin]]
+name = "synapse-compiler"
+path = "src/main.rs"
+
+[lib]
+name = "synapse_compiler"
+path = "src/lib.rs"

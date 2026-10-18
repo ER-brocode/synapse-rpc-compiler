@@ -1,0 +1,50 @@
+namespace synapse.fintech.market;
+
+/// Market trading side
+enum Side {
+    Buy = 1,
+    Sell = 2,
+}
+
+/// Order type specification
+enum OrderType {
+    Limit = 1,
+    Market = 2,
+    StopLoss = 3,
+}
+
+/// Level-2 Order book depth snapshot
+struct OrderBookDepth {
+    1: string symbol;
+    2: u64 sequence_number;
+    3: u64 timestamp_nanos;
+    4: list<f64> bid_prices;
+    5: list<f64> bid_quantities;
+    6: list<f64> ask_prices;
+    7: list<f64> ask_quantities;
+}
+
+/// Market trade execution event
+struct TradeEvent {
+    1: string trade_id;
+    2: string symbol;
+    3: f64 price;
+    4: f64 quantity;
+    5: Side side;
+    6: u64 timestamp_nanos;
+}
+
+/// Subscription request for market tickers
+struct MarketSubscription {
+    1: list<string> symbols;
+    2: bool include_depth;
+}
+
+/// High-frequency Market Data Streaming Service
+service MarketDataFeed {
+    /// Subscribe to real-time depth book updates
+    subscribe StreamDepth(MarketSubscription) -> stream OrderBookDepth;
+
+    /// Subscribe to raw executed trade events
+    subscribe StreamTrades(MarketSubscription) -> stream TradeEvent;
+}

@@ -1,0 +1,47 @@
+namespace synapse.chat.v1;
+
+/// User presence status
+enum PresenceStatus {
+    Offline = 0,
+    Online = 1,
+    Away = 2,
+    DoNotDisturb = 3,
+}
+
+/// Instant chat message payload
+struct ChatMessage {
+    1: u64 id;
+    2: string channel_id;
+    3: string sender_id;
+    4: string content;
+    5: u64 sent_at;
+    6: option<string> reply_to_id;
+}
+
+/// Receipt acknowledgment for delivered messages
+struct MessageReceipt {
+    1: u64 message_id;
+    2: bool delivered;
+    3: u64 timestamp;
+}
+
+/// Request to subscribe to chat room events
+struct ChatRoomRequest {
+    1: string channel_id;
+    2: u64 last_seen_timestamp;
+}
+
+/// Real-time Chat & Presence Service
+service ChatService {
+    /// Send a single message to a channel
+    rpc SendMessage(ChatMessage) -> MessageReceipt;
+
+    /// Stream message history and live messages for a channel
+    rpc StreamChannel(ChatRoomRequest) -> stream ChatMessage;
+
+    /// Interactive duplex chat session
+    rpc JoinSession(stream ChatMessage) -> stream ChatMessage;
+
+    /// Reactive subscription to user presence updates
+    subscribe WatchPresence(ChatRoomRequest) -> stream MessageReceipt;
+}

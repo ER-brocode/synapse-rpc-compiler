@@ -1,0 +1,66 @@
+name: Synapse RPC Compiler CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }} - Rust ${{ matrix.rust }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [stable]
+        include:
+          - os: ubuntu-latest
+            rust: beta
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain (${{ matrix.rust }})
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check Formatting
+        run: cargo fmt --all -- --check
+
+      - name: Compile and Check
+        run: cargo check --all-targets --all-features
+
+      - name: Run Clippy Linter
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run Test Suite
+        run: cargo test --all-targets --all-features --verbose
+
+      - name: Run TypeScript Runtime Protocol Test
+        run: node runtime-ts/tests/test_runtime.mjs
+
+      - name: Smoke Test Compiler CLI
+        shell: bash
+        run: |
+          cargo run --bin synapse-compiler -- compile --input schemas/chat.synapse --out-dir generated/chat --targets rust,typescript,go
+          cargo run --bin synapse-compiler -- compile --input schemas/market_data.synapse --out-dir generated/market --targets rust,typescript,go
+          cargo run --bin synapse-compiler -- compile --input schemas/telemetry.synapse --out-dir generated/telemetry --targets rust,typescript,go
+          cargo run --bin synapse-compiler -- validate --input schemas/chat.synapse
+          cargo run --bin synapse-compiler -- inspect --input schemas/chat.synapse --json

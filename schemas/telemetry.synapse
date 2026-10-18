@@ -1,0 +1,41 @@
+namespace synapse.observability.v1;
+
+/// Health status enum
+enum NodeStatus {
+    Healthy = 1,
+    Degraded = 2,
+    Unhealthy = 3,
+}
+
+/// Host metrics snapshot
+struct HostMetric {
+    1: string host_id;
+    2: f64 cpu_usage_percent;
+    3: u64 memory_used_bytes;
+    4: u64 memory_total_bytes;
+    5: u64 network_rx_bytes;
+    6: u64 network_tx_bytes;
+    7: u64 timestamp;
+}
+
+/// Node registration heartbeat
+struct Heartbeat {
+    1: string node_id;
+    2: NodeStatus status;
+    3: u64 timestamp;
+}
+
+/// Heartbeat response acknowledgment
+struct HeartbeatAck {
+    1: bool acknowledged;
+    2: u64 next_interval_ms;
+}
+
+/// High-throughput Telemetry Ingestion Service
+service TelemetryService {
+    /// Send periodical node heartbeat
+    rpc SendHeartbeat(Heartbeat) -> HeartbeatAck;
+
+    /// Stream batch metrics from node to collector
+    rpc StreamMetrics(stream HostMetric) -> HeartbeatAck;
+}
